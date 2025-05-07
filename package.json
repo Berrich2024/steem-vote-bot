@@ -1,0 +1,8 @@
+{
+  "name": "steem-vote-bot",
+  "version": "1.0.0",
+  "main": "vote-bot.js",
+  "dependencies": {
+    "steem": "^0.8.0"
+  }
+}
