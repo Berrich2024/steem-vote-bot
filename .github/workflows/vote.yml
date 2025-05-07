@@ -1,0 +1,27 @@
+name: Steem Vote Bot
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'  # Toutes les 3h
+  workflow_dispatch:       # Lancement manuel possible
+
+jobs:
+  vote:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run vote bot
+      env:
+        POSTING_KEY: ${{ secrets.POSTING_KEY }}
+      run: node vote-bot.js
