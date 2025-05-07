@@ -13,7 +13,7 @@ function isEligible(post) {
 
   return (
     ageMs > 5 * 60 * 1000 &&          // > 5 minutes (sinon 0 reward)
-    ageMs < 60 * 60 * 1000 &&         // < 1 heure
+    ageMs < 120 * 60 * 1000 &&         // < 1 heure
     post.active_votes.length > 0 &&  // déjà au moins un vote
     post.author !== VOTER &&         // ne pas voter soi-même
     !post.active_votes.some(v => v.voter === VOTER) // pas déjà voté
