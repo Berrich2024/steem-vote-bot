@@ -1,37 +1,36 @@
 const steem = require('steem');
 
 const WIF_POSTING_KEY = process.env.POSTING_KEY;
-const VOTER           = 'lumi2024';
-const TARGET_TAG      = 'crypto';
-const VOTE_WEIGHT     = 100;
+const VOTER = 'lumi2024';
+const TAG = 'crypto';
+const VOTE_WEIGHT = 100;  // en %
 
-let voted = false;
+steem.api.getDiscussionsByTrending({ tag: TAG, limit: 5 }, (err, posts) => {
+  if (err) return console.error('❌ Erreur de récupération:', err);
 
-steem.api.streamOperations((err, op) => {
-  if (voted) return;
-  if (err) return console.error(err);
-  if (op[0] === 'comment' && op[1].parent_author === '') {
-    try {
-      const md = JSON.parse(op[1].json_metadata || '{}');
-      if ((md.tags || []).includes(TARGET_TAG)) {
-        console.log('🔍 Post trouvé:', op[1].author, op[1].permlink);
-        steem.broadcast.vote(
-          process.env.POSTING_KEY,
-          VOTER,
-          op[1].author,
-          op[1].permlink,
-          VOTE_WEIGHT * 100,
-          (e, r) => {
-            if (e) {
-              console.error('❌ Erreur de vote:', e.message || e);
-            } else {
-              console.log('✅ Voté avec succès:', op[1].author, op[1].permlink);
-              voted = true;
-              process.exit(0);
-            }
-          }
-        );
-      }
-    } catch (e) {}
+  const target = posts.find(p => p.author !== VOTER); // éviter de voter pour soi-même
+
+  if (!target) {
+    console.log('ℹ️ Aucun post éligible trouvé.');
+    process.exit(0);
+    return;
   }
+
+  console.log(`🔍 Ciblage du post: ${target.author}/${target.permlink}`);
+
+  steem.broadcast.vote(
+    WIF_POSTING_KEY,
+    VOTER,
+    target.author,
+    target.permlink,
+    VOTE_WEIGHT * 100,
+    (err, result) => {
+      if (err) {
+        console.error('❌ Erreur lors du vote:', err.message || err);
+      } else {
+        console.log(`✅ Vote réussi pour ${target.author}/${target.permlink}`);
+      }
+      process.exit(0);
+    }
+  );
 });
