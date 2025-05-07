@@ -1,27 +1,33 @@
 const steem = require('steem');
 
-const WIF_POSTING_KEY = process.env.POSTING_KEY;  // Met dans GitHub Secrets
+const WIF_POSTING_KEY = process.env.POSTING_KEY;
 const VOTER = 'lumi2024';
-const TAG = 'crypto';
-const VOTE_WEIGHT = 100; // en %
+const TARGET_TAG = 'crypto';
+const VOTE_WEIGHT = 100;
 
-// Vérifie si le post respecte les critères
+// Vérifie si le post correspond à nos critères
 function isEligible(post) {
   const postTime = new Date(post.created + 'Z');
   const now = new Date();
   const ageMs = now - postTime;
 
+  let tags = [];
+  try {
+    const md = JSON.parse(post.json_metadata || '{}');
+    tags = md.tags || [];
+  } catch (e) {}
+
   return (
-    ageMs > 5 * 60 * 1000 &&          // > 5 minutes (sinon 0 reward)
-    ageMs < 240 * 60 * 1000 &&         // < 1 heure
-    post.active_votes.length > 0 &&  // déjà au moins un vote
-    post.author !== VOTER &&         // ne pas voter soi-même
-    !post.active_votes.some(v => v.voter === VOTER) // pas déjà voté
+    tags.includes(TARGET_TAG) &&
+    ageMs > 5 * 60 * 1000 &&
+    ageMs < 60 * 60 * 1000 &&
+    post.active_votes.length > 0 &&
+    post.author !== VOTER &&
+    !post.active_votes.some(v => v.voter === VOTER)
   );
 }
 
-// Récupère les 10 posts crypto les plus tendances
-steem.api.getDiscussionsByTrending({ tag: TAG, limit: 10 }, (err, posts) => {
+steem.api.getDiscussionsByTrending({ tag: '', limit: 20 }, (err, posts) => {
   if (err) {
     console.error('❌ Erreur de récupération des posts :', err);
     process.exit(1);
@@ -37,7 +43,6 @@ steem.api.getDiscussionsByTrending({ tag: TAG, limit: 10 }, (err, posts) => {
 
   console.log(`🔍 Ciblé : ${target.author}/${target.permlink}`);
 
-  // Vote
   steem.broadcast.vote(
     WIF_POSTING_KEY,
     VOTER,
