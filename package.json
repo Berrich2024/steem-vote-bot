@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "main": "vote-bot.js",
   "dependencies": {
-    "steem": "^0.8.0"
+    "steem": "^0.7.0"
   }
 }
