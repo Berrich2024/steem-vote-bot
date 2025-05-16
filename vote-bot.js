@@ -2,7 +2,7 @@ const steem = require('steem');
 
 const WIF_POSTING_KEY = process.env.POSTING_KEY;
 const VOTER = 'lumi2024';
-const TARGET_TAG = 'crypto';
+const TARGET_TAG = 'travel';
 const VOTE_WEIGHT = 100;
 
 function isEligible(post) {
