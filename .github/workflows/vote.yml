@@ -2,7 +2,7 @@ name: Steem Vote Bot
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Toutes les 3h
+    - cron: '0 */24 * * *'  # Toutes les 24h
   workflow_dispatch:       # Lancement manuel possible
 
 jobs:
